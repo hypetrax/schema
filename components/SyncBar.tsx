@@ -72,7 +72,7 @@ export const SyncBar: React.FC<SyncBarProps> = ({
           {redisActive ? (
             <span style={{ color: '#34d399', display: 'flex', alignItems: 'center', gap: 4 }}>
               <CloudCheck size={14} />
-              Vercel KV Cloud Live
+              Redis DB Live
             </span>
           ) : (
             <span style={{ color: '#fbbf24', display: 'flex', alignItems: 'center', gap: 4 }}>
