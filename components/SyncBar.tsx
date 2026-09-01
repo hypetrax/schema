@@ -1,17 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Database, Download, Upload, CloudCheck, HardDrive, CheckCircle2 } from 'lucide-react';
+import { Database, Download, CloudCheck, HardDrive, CheckCircle2 } from 'lucide-react';
 
 interface SyncBarProps {
   redisActive: boolean;
-  onImportData: (data: Record<string, any>) => void;
   onShowToast: (msg: string) => void;
 }
 
 export const SyncBar: React.FC<SyncBarProps> = ({
   redisActive,
-  onImportData,
   onShowToast
 }) => {
   const [showSyncModal, setShowSyncModal] = useState(false);
@@ -27,27 +25,6 @@ export const SyncBar: React.FC<SyncBarProps> = ({
     a.click();
     document.body.removeChild(a);
     onShowToast('Aanwezigheid backup (.json) gedownload!');
-  };
-
-  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const parsed = JSON.parse(event.target?.result as string);
-        if (parsed && typeof parsed === 'object') {
-          onImportData(parsed);
-          onShowToast('Aanwezigheid data succesvol geïmporteerd!');
-          setShowSyncModal(false);
-        } else {
-          onShowToast('Ongeldig JSON bestand');
-        }
-      } catch (err) {
-        onShowToast('Fout bij lezen bestand');
-      }
-    };
-    reader.readAsText(file);
   };
 
   return (
@@ -102,22 +79,21 @@ export const SyncBar: React.FC<SyncBarProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
               <h3 style={{ fontSize: '1.15rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Database size={18} style={{ color: '#10b981' }} />
-                Cloud Database & Backup
+                Cloud Database & Export
               </h3>
             </div>
 
             <p style={{ fontSize: '0.85rem', color: 'var(--color-text-sub)', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-              Alle keuzes van de spelers worden direct gesynchroniseerd via de server API en lokaal opgeslagen.
+              Alle keuzes van de spelers worden live opgeslagen in de Redis cloud database.
             </p>
 
             <div style={{ background: 'rgba(9, 13, 22, 0.8)', border: '1px solid var(--border-card)', borderRadius: 12, padding: '1rem', marginBottom: '1.25rem' }}>
               <div style={{ fontSize: '0.82rem', fontWeight: 700, color: 'white', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <CheckCircle2 size={15} style={{ color: '#34d399' }} />
-                Vercel KV (1-Klik 100% Gratis Cloud DB)
+                Redis Database Actief (redis-coffee-blanket)
               </div>
               <p style={{ fontSize: '0.78rem', color: 'var(--color-text-muted)', lineHeight: 1.4 }}>
-                Wil je 100% gegarandeerde permanente Cloud-opslag op Vercel?
-                Ga op <strong>Vercel.com</strong> naar jouw project → tab <strong>Storage</strong> → klik op <strong>Create KV Database</strong>.
+                Je gegevens worden permanent gesynchroniseerd in de Redis database.
               </p>
             </div>
 
@@ -125,17 +101,11 @@ export const SyncBar: React.FC<SyncBarProps> = ({
               <button
                 className="action-btn"
                 onClick={handleExport}
-                style={{ flex: 1, justifyContent: 'center', padding: '0.6rem' }}
+                style={{ width: '100%', justifyContent: 'center', padding: '0.65rem' }}
               >
                 <Download size={14} />
-                Backup Exporteren
+                Backup Exporteren (.json)
               </button>
-
-              <label className="action-btn" style={{ flex: 1, justifyContent: 'center', padding: '0.6rem', cursor: 'pointer' }}>
-                <Upload size={14} />
-                Backup Importeren
-                <input type="file" accept=".json" onChange={handleImportFile} style={{ display: 'none' }} />
-              </label>
             </div>
 
             <button

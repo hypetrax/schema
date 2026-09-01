@@ -11,7 +11,6 @@ interface HeaderProps {
   onOpenLogin: (player?: PlayerName) => void;
   onLogout: () => void;
   onRefreshSchema: () => void;
-  onImportData: (data: Record<string, any>) => void;
   onShowToast: (msg: string) => void;
   isRefreshing: boolean;
 }
@@ -22,7 +21,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenLogin,
   onLogout,
   onRefreshSchema,
-  onImportData,
   onShowToast,
   isRefreshing
 }) => {
@@ -47,7 +45,6 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="user-selector-bar">
           <SyncBar
             redisActive={redisActive}
-            onImportData={onImportData}
             onShowToast={onShowToast}
           />
 

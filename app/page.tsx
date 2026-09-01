@@ -88,22 +88,7 @@ export default function HomePage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Import JSON backup data
-  const handleImportData = async (importedData: Record<string, any>) => {
-    setAvailabilityData(prev => {
-      const merged = { ...prev, ...importedData };
-      localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
-      return merged;
-    });
 
-    try {
-      await fetch('/api/availability', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullData: importedData })
-      });
-    } catch (e) {}
-  };
 
   // Handle availability toggle with password authentication
   const handleUpdateStatus = async (matchId: string, player: PlayerName, status: AvailabilityStatus) => {
@@ -211,7 +196,6 @@ export default function HomePage() {
         onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
         onRefreshSchema={handleRefreshSchema}
-        onImportData={handleImportData}
         onShowToast={showToast}
         isRefreshing={isRefreshing}
       />
