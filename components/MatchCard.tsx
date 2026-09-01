@@ -92,7 +92,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
       </div>
 
       <div className="location-info">
-        <MapPin size={13} style={{ shrink: 0 }} />
+        <MapPin size={13} style={{ flexShrink: 0 }} />
         <a href={match.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="location-link" title="Open in Google Maps">
           {match.location}
         </a>
@@ -150,7 +150,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
               fontSize: '0.75rem',
               cursor: 'pointer',
               display: 'flex',
-              align-items: 'center',
+              alignItems: 'center',
               gap: 4
             }}
           >
