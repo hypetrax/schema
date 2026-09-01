@@ -2,18 +2,20 @@
 
 import React from 'react';
 import { PLAYERS, PlayerName } from '@/lib/types';
-import { User, ShieldCheck, RefreshCw } from 'lucide-react';
+import { User, RefreshCw, LogIn, LogOut, Lock } from 'lucide-react';
 
 interface HeaderProps {
   activePlayer: PlayerName | null;
-  setActivePlayer: (player: PlayerName | null) => void;
+  onOpenLogin: (player?: PlayerName) => void;
+  onLogout: () => void;
   onRefreshSchema: () => void;
   isRefreshing: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   activePlayer,
-  setActivePlayer,
+  onOpenLogin,
+  onLogout,
   onRefreshSchema,
   isRefreshing
 }) => {
@@ -36,19 +38,46 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="user-selector-bar">
-          <span className="user-selector-label">
-            <User size={14} style={{ display: 'inline', marginRight: 4 }} />
-            Wie ben jij?
-          </span>
-          {PLAYERS.map(player => (
-            <button
-              key={player}
-              className={`player-btn ${activePlayer === player ? 'active' : ''}`}
-              onClick={() => setActivePlayer(activePlayer === player ? null : player)}
-            >
-              {player}
-            </button>
-          ))}
+          {activePlayer ? (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingLeft: 4, paddingRight: 4, fontSize: '0.85rem' }}>
+                <Lock size={14} style={{ color: '#34d399' }} />
+                <span>Ingelogd als: <strong style={{ color: '#34d399' }}>{activePlayer}</strong></span>
+              </div>
+              <button
+                className="player-btn"
+                onClick={onLogout}
+                style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(239, 68, 68, 0.15)', color: '#f87171' }}
+              >
+                <LogOut size={13} />
+                Uitloggen
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="user-selector-label">
+                <User size={14} style={{ display: 'inline', marginRight: 4 }} />
+                Inloggen:
+              </span>
+              {PLAYERS.map(player => (
+                <button
+                  key={player}
+                  className="player-btn"
+                  onClick={() => onOpenLogin(player)}
+                >
+                  {player}
+                </button>
+              ))}
+              <button
+                className="player-btn active"
+                onClick={() => onOpenLogin()}
+                style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+              >
+                <LogIn size={13} />
+                Inloggen
+              </button>
+            </>
+          )}
 
           <button 
             className="player-btn"

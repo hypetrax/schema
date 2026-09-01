@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Match, MatchAvailability, MatchExtra, PLAYERS, PlayerName, AvailabilityStatus } from '@/lib/types';
 import { generateICalContent, generateWhatsAppMessage } from '@/lib/data';
-import { Calendar, Clock, MapPin, Share2, Download, Car, Shirt, MessageSquare, Check, X, HelpCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, Clock, MapPin, Share2, Download, Car, Shirt, MessageSquare, Check, X, HelpCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 
 interface MatchCardProps {
   match: Match;
@@ -12,6 +12,7 @@ interface MatchCardProps {
   extra?: MatchExtra;
   onUpdateStatus: (matchId: string, player: PlayerName, status: AvailabilityStatus) => void;
   onUpdateExtra: (matchId: string, extraData: Partial<MatchExtra>) => void;
+  onOpenLogin: (player: PlayerName) => void;
   onShowToast: (msg: string) => void;
 }
 
@@ -22,13 +23,26 @@ export const MatchCard: React.FC<MatchCardProps> = ({
   extra,
   onUpdateStatus,
   onUpdateExtra,
+  onOpenLogin,
   onShowToast
 }) => {
   const [showDetails, setShowDetails] = useState(false);
 
   const jaCount = PLAYERS.filter(p => availability[p] === 'ja').length;
-  const neeCount = PLAYERS.filter(p => availability[p] === 'nee').length;
-  const twijfelCount = PLAYERS.filter(p => availability[p] === 'twijfel').length;
+
+  const handleStatusClick = (player: PlayerName, status: AvailabilityStatus) => {
+    if (!activePlayer) {
+      onOpenLogin(player);
+      return;
+    }
+
+    if (activePlayer !== player) {
+      onShowToast(`🔒 Je bent ingelogd als ${activePlayer}. Je kunt alleen je eigen aanwezigheid wijzigen.`);
+      return;
+    }
+
+    onUpdateStatus(match.id, player, status);
+  };
 
   const handleShareWhatsApp = () => {
     const text = generateWhatsAppMessage(match, availability, extra);
@@ -102,32 +116,37 @@ export const MatchCard: React.FC<MatchCardProps> = ({
         {PLAYERS.map(player => {
           const status = availability[player] || 'onbekend';
           const isCurrent = activePlayer === player;
+          const isEditable = activePlayer === player;
 
           return (
-            <div key={player} className="player-row">
+            <div key={player} className="player-row" style={{ opacity: activePlayer && !isEditable ? 0.75 : 1 }}>
               <span className={`player-name-label ${isCurrent ? 'current-user' : ''}`}>
                 {player}
-                {isCurrent && <span style={{ fontSize: '0.68rem', opacity: 0.8 }}>(jij)</span>}
+                {isCurrent && <span style={{ fontSize: '0.68rem', color: '#34d399', fontWeight: 700 }}>(jij)</span>}
+                {activePlayer && !isEditable && <Lock size={11} style={{ color: 'var(--color-text-muted)', marginLeft: 2 }} />}
               </span>
               <div className="status-button-group">
                 <button
                   className={`status-toggle-btn btn-ja ${status === 'ja' ? 'active' : ''}`}
-                  onClick={() => onUpdateStatus(match.id, player, 'ja')}
-                  title={`${player} is aanwezig`}
+                  onClick={() => handleStatusClick(player, 'ja')}
+                  title={isEditable ? `${player} is aanwezig` : `Log in als ${player} om status te wijzigen`}
+                  style={{ cursor: isEditable || !activePlayer ? 'pointer' : 'not-allowed' }}
                 >
                   <Check size={14} />
                 </button>
                 <button
                   className={`status-toggle-btn btn-twijfel ${status === 'twijfel' ? 'active' : ''}`}
-                  onClick={() => onUpdateStatus(match.id, player, 'twijfel')}
-                  title={`${player} twijfelt`}
+                  onClick={() => handleStatusClick(player, 'twijfel')}
+                  title={isEditable ? `${player} twijfelt` : `Log in als ${player} om status te wijzigen`}
+                  style={{ cursor: isEditable || !activePlayer ? 'pointer' : 'not-allowed' }}
                 >
                   <HelpCircle size={14} />
                 </button>
                 <button
                   className={`status-toggle-btn btn-nee ${status === 'nee' ? 'active' : ''}`}
-                  onClick={() => onUpdateStatus(match.id, player, 'nee')}
-                  title={`${player} is afwezig`}
+                  onClick={() => handleStatusClick(player, 'nee')}
+                  title={isEditable ? `${player} is afwezig` : `Log in als ${player} om status te wijzigen`}
+                  style={{ cursor: isEditable || !activePlayer ? 'pointer' : 'not-allowed' }}
                 >
                   <X size={14} />
                 </button>

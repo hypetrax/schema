@@ -9,10 +9,15 @@ import { MatchCard } from '@/components/MatchCard';
 import { ScheduleTable } from '@/components/ScheduleTable';
 import { SporthallenGuide } from '@/components/SporthallenGuide';
 import { StatsLineup } from '@/components/StatsLineup';
-import { Calendar, Filter, RefreshCw, CheckCircle2, AlertTriangle, Shield, MapPin, BarChart3 } from 'lucide-react';
+import { LoginModal } from '@/components/LoginModal';
+import { Calendar, Shield, MapPin, BarChart3, CheckCircle2 } from 'lucide-react';
 
 export default function HomePage() {
   const [activePlayer, setActivePlayer] = useState<PlayerName | null>(null);
+  const [playerPassword, setPlayerPassword] = useState<string | null>(null);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [loginTargetPlayer, setLoginTargetPlayer] = useState<PlayerName | null>(null);
+
   const [availabilityData, setAvailabilityData] = useState<AvailabilityData>({});
   const [matches, setMatches] = useState<Match[]>(INITIAL_MATCHES);
   const [activeTab, setActiveTab] = useState<'HARDENBERG' | 'ALL' | 'HALLS' | 'STATS'>('HARDENBERG');
@@ -20,11 +25,13 @@ export default function HomePage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // 1. Load player selection & availability from localStorage & API
+  // Load active player & session password
   useEffect(() => {
-    const savedPlayer = localStorage.getItem('bv_hardenberg_active_player');
-    if (savedPlayer && PLAYERS.includes(savedPlayer as PlayerName)) {
-      setActivePlayer(savedPlayer as PlayerName);
+    const savedPlayer = localStorage.getItem('bv_hb_auth_player') as PlayerName | null;
+    const savedPass = localStorage.getItem('bv_hb_auth_pass');
+    if (savedPlayer && savedPass && PLAYERS.includes(savedPlayer)) {
+      setActivePlayer(savedPlayer);
+      setPlayerPassword(savedPass);
     }
 
     const savedAvail = localStorage.getItem('bv_hardenberg_availability');
@@ -49,13 +56,25 @@ export default function HomePage() {
       .catch(() => {});
   }, []);
 
-  const handleSetActivePlayer = (p: PlayerName | null) => {
-    setActivePlayer(p);
-    if (p) {
-      localStorage.setItem('bv_hardenberg_active_player', p);
-    } else {
-      localStorage.removeItem('bv_hardenberg_active_player');
-    }
+  const handleLoginSuccess = (player: PlayerName, pass: string) => {
+    setActivePlayer(player);
+    setPlayerPassword(pass);
+    localStorage.setItem('bv_hb_auth_player', player);
+    localStorage.setItem('bv_hb_auth_pass', pass);
+    showToast(`🔑 Ingelogd als ${player}! Je kunt nu je eigen aanwezigheid wijzigen.`);
+  };
+
+  const handleLogout = () => {
+    setActivePlayer(null);
+    setPlayerPassword(null);
+    localStorage.removeItem('bv_hb_auth_player');
+    localStorage.removeItem('bv_hb_auth_pass');
+    showToast('Uitgelogd');
+  };
+
+  const handleOpenLogin = (player?: PlayerName) => {
+    setLoginTargetPlayer(player || null);
+    setIsLoginOpen(true);
   };
 
   const showToast = (msg: string) => {
@@ -63,8 +82,13 @@ export default function HomePage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // 2. Handle availability toggle
+  // Handle availability toggle with password authentication
   const handleUpdateStatus = async (matchId: string, player: PlayerName, status: AvailabilityStatus) => {
+    if (!activePlayer || activePlayer !== player || !playerPassword) {
+      handleOpenLogin(player);
+      return;
+    }
+
     setAvailabilityData(prev => {
       const matchObj = prev[matchId] || { players: {}, extra: {} };
       const newStatus = matchObj.players[player] === status ? 'onbekend' : status;
@@ -76,15 +100,24 @@ export default function HomePage() {
     });
 
     try {
-      await fetch('/api/availability', {
+      const res = await fetch('/api/availability', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ matchId, player, status })
+        body: JSON.stringify({
+          matchId,
+          player,
+          status,
+          password: playerPassword
+        })
       });
+      const resJson = await res.json();
+      if (!resJson.success) {
+        showToast(`Fout: ${resJson.error}`);
+      }
     } catch (e) {}
   };
 
-  // 3. Handle extra match info (driver, wash, notes)
+  // Handle extra match info
   const handleUpdateExtra = async (matchId: string, extraData: Partial<MatchExtra>) => {
     setAvailabilityData(prev => {
       const matchObj = prev[matchId] || { players: {}, extra: {} };
@@ -104,7 +137,7 @@ export default function HomePage() {
     } catch (e) {}
   };
 
-  // 4. Live Sync with Motia
+  // Live Sync with Motia
   const handleRefreshSchema = async () => {
     setIsRefreshing(true);
     try {
@@ -123,11 +156,9 @@ export default function HomePage() {
     }
   };
 
-  // Filter BV Hardenberg matches
   const hardenbergMatches = matches.filter(m => m.isHardenberg);
   const now = new Date();
 
-  // Find next upcoming match for BV Hardenberg
   const upcomingHardenbergMatches = hardenbergMatches.filter(m => {
     const d = parseDate(m.date, m.time);
     return d >= now;
@@ -135,7 +166,6 @@ export default function HomePage() {
 
   const nextMatch = upcomingHardenbergMatches.length > 0 ? upcomingHardenbergMatches[0] : hardenbergMatches[0] || null;
 
-  // Filter logic for match cards
   const filteredHardenbergMatches = hardenbergMatches.filter(m => {
     const matchDate = parseDate(m.date, m.time);
     const isPast = matchDate < now;
@@ -154,16 +184,15 @@ export default function HomePage() {
     <div>
       <Header
         activePlayer={activePlayer}
-        setActivePlayer={handleSetActivePlayer}
+        onOpenLogin={handleOpenLogin}
+        onLogout={handleLogout}
         onRefreshSchema={handleRefreshSchema}
         isRefreshing={isRefreshing}
       />
 
       <main className="main-wrapper">
-        {/* Next Match Hero Banner */}
         <HeroCountdown nextMatch={nextMatch} availabilityData={availabilityData} />
 
-        {/* Tab Navigation */}
         <nav className="tab-navigation">
           <button
             className={`tab-btn ${activeTab === 'HARDENBERG' ? 'active' : ''}`}
@@ -197,7 +226,6 @@ export default function HomePage() {
           </button>
         </nav>
 
-        {/* TAB 1: BV Hardenberg Matches & Availability */}
         {activeTab === 'HARDENBERG' && (
           <div>
             <div className="controls-bar">
@@ -243,7 +271,7 @@ export default function HomePage() {
               {activePlayer && (
                 <div style={{ fontSize: '0.82rem', color: '#34d399', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <CheckCircle2 size={15} />
-                  <span>Nu actief als: <strong>{activePlayer}</strong></span>
+                  <span>Ingelogd: <strong>{activePlayer}</strong> (Alleen jouw status is aanpasbaar)</span>
                 </div>
               )}
             </div>
@@ -258,6 +286,7 @@ export default function HomePage() {
                   extra={availabilityData[m.id]?.extra}
                   onUpdateStatus={handleUpdateStatus}
                   onUpdateExtra={handleUpdateExtra}
+                  onOpenLogin={handleOpenLogin}
                   onShowToast={showToast}
                 />
               ))}
@@ -271,15 +300,17 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* TAB 2: All Competition Matches */}
         {activeTab === 'ALL' && <ScheduleTable matches={matches} />}
-
-        {/* TAB 3: Sporthallen */}
         {activeTab === 'HALLS' && <SporthallenGuide />}
-
-        {/* TAB 4: Team Stats */}
         {activeTab === 'STATS' && <StatsLineup matches={matches} availabilityData={availabilityData} />}
       </main>
+
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        initialPlayer={loginTargetPlayer}
+      />
 
       {toastMessage && (
         <div className="toast-msg">
