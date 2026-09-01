@@ -23,6 +23,7 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<'HARDENBERG' | 'ALL' | 'HALLS' | 'STATS'>('HARDENBERG');
   const [filterStatus, setFilterStatus] = useState<'ALL' | 'UPCOMING' | 'PAST' | 'HOME' | 'AWAY' | 'READY' | 'NEED_PLAYERS'>('ALL');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [redisActive, setRedisActive] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Load active player & session password
@@ -45,12 +46,17 @@ export default function HomePage() {
     fetch('/api/availability')
       .then(res => res.json())
       .then(json => {
-        if (json.success && json.data) {
-          setAvailabilityData(prev => {
-            const merged = { ...prev, ...json.data };
-            localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
-            return merged;
-          });
+        if (json.success) {
+          if (json.data) {
+            setAvailabilityData(prev => {
+              const merged = { ...prev, ...json.data };
+              localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
+              return merged;
+            });
+          }
+          if (json.redisActive) {
+            setRedisActive(true);
+          }
         }
       })
       .catch(() => {});
@@ -80,6 +86,23 @@ export default function HomePage() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Import JSON backup data
+  const handleImportData = async (importedData: Record<string, any>) => {
+    setAvailabilityData(prev => {
+      const merged = { ...prev, ...importedData };
+      localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
+      return merged;
+    });
+
+    try {
+      await fetch('/api/availability', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullData: importedData })
+      });
+    } catch (e) {}
   };
 
   // Handle availability toggle with password authentication
@@ -184,9 +207,12 @@ export default function HomePage() {
     <div>
       <Header
         activePlayer={activePlayer}
+        redisActive={redisActive}
         onOpenLogin={handleOpenLogin}
         onLogout={handleLogout}
         onRefreshSchema={handleRefreshSchema}
+        onImportData={handleImportData}
+        onShowToast={showToast}
         isRefreshing={isRefreshing}
       />
 

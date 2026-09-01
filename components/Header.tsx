@@ -3,20 +3,27 @@
 import React from 'react';
 import { PLAYERS, PlayerName } from '@/lib/types';
 import { User, RefreshCw, LogIn, LogOut, Lock } from 'lucide-react';
+import { SyncBar } from './SyncBar';
 
 interface HeaderProps {
   activePlayer: PlayerName | null;
+  redisActive: boolean;
   onOpenLogin: (player?: PlayerName) => void;
   onLogout: () => void;
   onRefreshSchema: () => void;
+  onImportData: (data: Record<string, any>) => void;
+  onShowToast: (msg: string) => void;
   isRefreshing: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   activePlayer,
+  redisActive,
   onOpenLogin,
   onLogout,
   onRefreshSchema,
+  onImportData,
+  onShowToast,
   isRefreshing
 }) => {
   return (
@@ -38,6 +45,12 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         <div className="user-selector-bar">
+          <SyncBar
+            redisActive={redisActive}
+            onImportData={onImportData}
+            onShowToast={onShowToast}
+          />
+
           {activePlayer ? (
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, paddingLeft: 4, paddingRight: 4, fontSize: '0.85rem' }}>
