@@ -14,6 +14,20 @@ const REDIS_KEY = 'bv_hardenberg_availability_data';
 
 const REDIS_URL = process.env.REDIS_URL || 'redis://default:fKsWlpFByyCsfKhpiygZNnWd7ccOWB13@stop-camera-cats-17284.db.redis.io:17123';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0'
+};
+
+// Handle OPTIONS preflight requests for CORS
+export async function OPTIONS() {
+  return NextResponse.json({}, { headers: corsHeaders });
+}
+
 // Singleton Redis Client for serverless environments
 let redis: Redis | null = null;
 
@@ -94,11 +108,7 @@ export async function GET() {
     redisActive,
     updatedAt: new Date().toISOString()
   }, {
-    headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    }
+    headers: corsHeaders
   });
 }
 
@@ -113,11 +123,11 @@ export async function POST(request: Request) {
     if (fullData && typeof fullData === 'object') {
       const merged = { ...currentStore, ...fullData };
       const saved = await persistData(merged);
-      return NextResponse.json({ success: true, data: merged, redisActive: saved });
+      return NextResponse.json({ success: true, data: merged, redisActive: saved }, { headers: corsHeaders });
     }
 
     if (!matchId) {
-      return NextResponse.json({ success: false, error: 'matchId is verplicht' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'matchId is verplicht' }, { status: 400, headers: corsHeaders });
     }
 
     // Authenticate player status change
@@ -126,7 +136,7 @@ export async function POST(request: Request) {
         return NextResponse.json({
           success: false,
           error: `Ongeldig wachtwoord voor ${player}. Je kunt alleen je eigen aanwezigheid aanpassen met jouw inlog.`
-        }, { status: 403 });
+        }, { status: 403, headers: corsHeaders });
       }
 
       if (!currentStore[matchId]) {
@@ -161,11 +171,9 @@ export async function POST(request: Request) {
       redisActive: saved,
       updatedMatch: currentStore[matchId]
     }, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate'
-      }
+      headers: corsHeaders
     });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message || 'Fout bij opslaan' }, { status: 500 });
+    return NextResponse.json({ success: false, error: err.message || 'Fout bij opslaan' }, { status: 500, headers: corsHeaders });
   }
 }
