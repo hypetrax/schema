@@ -40,7 +40,9 @@ export const Header: React.FC<HeaderProps> = ({
             }}
           />
           <div>
-            <div className="brand-title">BV Hardenberg</div>
+            <div className="brand-title">
+              BV <span className="brand-title-gradient">Hardenberg</span>
+            </div>
             <div className="brand-subtitle">
               <span>Wedstrijdschema 2026-2027</span>
               <span className="domain-pill">schema.bartpullen.nl</span>
