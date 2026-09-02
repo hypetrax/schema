@@ -4,61 +4,61 @@ export const TEAM_NAME = 'BV Hardenberg';
 
 export const SPORTHALLEN: Record<string, Sporthal> = {
   'BV Hardenberg': {
-    name: 'Sporthal De Slag / De Kamp',
+    name: 'Sporthal De Beek',
     teams: ['BV Hardenberg'],
-    address: 'Sallandsestraat 82',
+    address: 'Hondsdraf 38',
     city: 'Hardenberg',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+De+Slag+Hardenberg',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+De+Beek+Hondsdraf+38+Hardenberg',
     notes: 'Thuisbasis BV Hardenberg. Koffie & borrel na afloop in de kantine.'
   },
   'BV Borne': {
-    name: "Sportcentrum 't Wooldrik",
+    name: "Sportcomplex 't Wooldrik",
     teams: ['BV Borne'],
-    address: "'t Wooldrik 1",
+    address: 'Het Wooldrik 1',
     city: 'Borne',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sportcentrum+t+Wooldrik+Borne'
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Het+Wooldrik+1+Borne'
   },
   't Pluumke': {
-    name: 'Sporthal De Mossendam',
+    name: 'Sporthal De Els',
     teams: ["t Pluumke"],
-    address: 'Koekoekslaantje 1',
-    city: 'Goor',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+De+Mossendam+Goor'
+    address: 'Trompstraat 20',
+    city: 'Haaksbergen',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+De+Els+Trompstraat+20+Haaksbergen'
   },
   'Elo H1': {
-    name: 'Sporthal Pathmos',
+    name: 'Sporthal Slangenbeek',
     teams: ['Elo H1', 'Elo H2'],
-    address: 'Veilingstraat 20',
-    city: 'Enschede',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+Pathmos+Enschede'
+    address: 'Straatsburg 5',
+    city: 'Hengelo',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+Slangenbeek+Straatsburg+5+Hengelo'
   },
   'Elo H2': {
-    name: 'Sporthal Pathmos',
+    name: 'Sporthal Slangenbeek',
     teams: ['Elo H1', 'Elo H2'],
-    address: 'Veilingstraat 20',
-    city: 'Enschede',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+Pathmos+Enschede'
+    address: 'Straatsburg 5',
+    city: 'Hengelo',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+Slangenbeek+Straatsburg+5+Hengelo'
   },
   'Wik 80': {
-    name: "Sporthal 't Noaberhuus / De Reeuver",
+    name: 'Pathmoshal',
     teams: ['Wik 80'],
-    address: 'Sint Annastraat 9',
-    city: 'Delden',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Wik+80+Delden'
+    address: 'Veilingstraat 20',
+    city: 'Enschede',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Pathmoshal+Veilingstraat+20+Enschede'
   },
   'GV Unisson': {
-    name: 'Sporthal De Deurloop',
+    name: 'MFA De Zweede',
     teams: ['GV Unisson'],
-    address: 'Bekumerstraat 31',
+    address: 'Boekelosestraat 275',
     city: 'Boekelo',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+Boekelo+GV+Unisson'
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=MFA+De+Zweede+Boekelosestraat+275+Boekelo'
   },
   'BV Twenterand': {
-    name: 'Sporthal De Stamper',
+    name: 'Het Punt',
     teams: ['BV Twenterand'],
-    address: 'Schuilenburgsingel 2',
-    city: 'Vriezenveen',
-    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Sporthal+De+Stamper+Vriezenveen'
+    address: 'Burgemeester Koetjestraat 2',
+    city: 'Vroomshoop',
+    mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Het+Punt+Burgemeester+Koetjestraat+2+Vroomshoop'
   }
 };
 
