@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { HARDENBERG_MATCHES, INITIAL_MATCHES, parseDate } from '@/lib/data';
 import { Match, AvailabilityData, PlayerName, AvailabilityStatus, MatchExtra, PLAYERS } from '@/lib/types';
 import { Header } from '@/components/Header';
@@ -26,7 +26,35 @@ export default function HomePage() {
   const [redisActive, setRedisActive] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load active player & session password
+  // Fetch fresh availability data from Redis API without any browser caching
+  const syncWithServer = useCallback(async () => {
+    try {
+      const res = await fetch('/api/availability?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      const json = await res.json();
+      if (json.success) {
+        if (json.data) {
+          setAvailabilityData(prev => {
+            const merged = { ...prev, ...json.data };
+            localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
+            return merged;
+          });
+        }
+        if (json.redisActive !== undefined) {
+          setRedisActive(json.redisActive);
+        }
+      }
+    } catch (e) {
+      console.log('Sync error:', e);
+    }
+  }, []);
+
+  // Load active player & session password on mount
   useEffect(() => {
     const savedPlayer = localStorage.getItem('bv_hb_auth_player') as PlayerName | null;
     const savedPass = localStorage.getItem('bv_hb_auth_pass');
@@ -42,25 +70,21 @@ export default function HomePage() {
       } catch (e) {}
     }
 
-    // Fetch from backend API
-    fetch('/api/availability')
-      .then(res => res.json())
-      .then(json => {
-        if (json.success) {
-          if (json.data) {
-            setAvailabilityData(prev => {
-              const merged = { ...prev, ...json.data };
-              localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
-              return merged;
-            });
-          }
-          if (json.redisActive) {
-            setRedisActive(true);
-          }
-        }
-      })
-      .catch(() => {});
-  }, []);
+    // Initial server fetch
+    syncWithServer();
+
+    // Auto-sync every 15 seconds so all players see real-time updates
+    const interval = setInterval(syncWithServer, 15000);
+
+    // Auto-sync when player switches back to browser tab
+    const handleFocus = () => syncWithServer();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [syncWithServer]);
 
   const handleLoginSuccess = (player: PlayerName, pass: string) => {
     setActivePlayer(player);
@@ -68,6 +92,7 @@ export default function HomePage() {
     localStorage.setItem('bv_hb_auth_player', player);
     localStorage.setItem('bv_hb_auth_pass', pass);
     showToast(`🔑 Ingelogd als ${player}! Je kunt nu je eigen aanwezigheid wijzigen.`);
+    syncWithServer();
   };
 
   const handleLogout = () => {
@@ -88,15 +113,14 @@ export default function HomePage() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-
-
-  // Handle availability toggle with password authentication
+  // Handle availability toggle with password authentication & instant Redis sync
   const handleUpdateStatus = async (matchId: string, player: PlayerName, status: AvailabilityStatus) => {
     if (!activePlayer || activePlayer !== player || !playerPassword) {
       handleOpenLogin(player);
       return;
     }
 
+    // Optimistic UI update
     setAvailabilityData(prev => {
       const matchObj = prev[matchId] || { players: {}, extra: {} };
       const newStatus = matchObj.players[player] === status ? 'onbekend' : status;
@@ -119,13 +143,23 @@ export default function HomePage() {
         })
       });
       const resJson = await res.json();
-      if (!resJson.success) {
+      if (resJson.success && resJson.data) {
+        setAvailabilityData(prev => {
+          const merged = { ...prev, ...resJson.data };
+          localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
+          return merged;
+        });
+        if (resJson.redisActive !== undefined) setRedisActive(resJson.redisActive);
+      } else if (!resJson.success) {
         showToast(`Fout: ${resJson.error}`);
+        syncWithServer();
       }
-    } catch (e) {}
+    } catch (e) {
+      showToast('Fout bij opslaan naar server');
+    }
   };
 
-  // Handle extra match info
+  // Handle extra match info (driver, wash, notes)
   const handleUpdateExtra = async (matchId: string, extraData: Partial<MatchExtra>) => {
     setAvailabilityData(prev => {
       const matchObj = prev[matchId] || { players: {}, extra: {} };
@@ -137,11 +171,19 @@ export default function HomePage() {
     });
 
     try {
-      await fetch('/api/availability', {
+      const res = await fetch('/api/availability', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ matchId, ...extraData })
       });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setAvailabilityData(prev => {
+          const merged = { ...prev, ...json.data };
+          localStorage.setItem('bv_hardenberg_availability', JSON.stringify(merged));
+          return merged;
+        });
+      }
     } catch (e) {}
   };
 
@@ -157,6 +199,7 @@ export default function HomePage() {
       } else {
         showToast('Kon live schema niet ophalen, standaard schema geladen.');
       }
+      await syncWithServer();
     } catch (e) {
       showToast('Fout bij verbinden met motia.nl');
     } finally {
