@@ -231,9 +231,7 @@ export function generateWhatsAppMessage(match: Match, availability?: Record<stri
   if (nee.length > 0) msg += `🔴 *Afwezig (${nee.length})*: ${nee.join(', ')}\n`;
   if (onbekend.length > 0) msg += `⚪ *Nog invullen (${onbekend.length})*: ${onbekend.join(', ')}\n`;
 
-  if (extra?.driver) msg += `\n🚗 *Chauffeur*: ${extra.driver}`;
-  if (extra?.wash) msg += `\n🧺 *Kleding/Wassen*: ${extra.wash}`;
-  if (extra?.notes) msg += `\n📝 *Opmerking*: ${extra.notes}`;
+  if (!match.isHome && extra?.driver) msg += `\n🚗 *Chauffeur*: ${extra.driver}`;
 
   msg += `\n\nGeef je aanwezigheid door via:\nhttps://schema.bartpullen.nl`;
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Match, MatchAvailability, MatchExtra, PLAYERS, PlayerName, AvailabilityStatus } from '@/lib/types';
 import { generateICalContent, generateWhatsAppMessage } from '@/lib/data';
-import { Calendar, Clock, MapPin, Share2, Download, Car, Shirt, MessageSquare, Check, X, HelpCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
+import { Calendar, Clock, MapPin, Share2, Download, Car, Check, X, HelpCircle, ChevronDown, ChevronUp, Lock } from 'lucide-react';
 
 interface MatchCardProps {
   match: Match;
@@ -122,7 +122,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             <div key={player} className="player-row" style={{ opacity: activePlayer && !isEditable ? 0.75 : 1 }}>
               <span className={`player-name-label ${isCurrent ? 'current-user' : ''}`}>
                 {player}
-                {isCurrent && <span style={{ fontSize: '0.68rem', color: '#34d399', fontWeight: 700 }}>(jij)</span>}
+                {isCurrent && <span style={{ fontSize: '0.68rem', color: 'var(--brand-orange)', fontWeight: 800 }}>(jij)</span>}
                 {activePlayer && !isEditable && <Lock size={11} style={{ color: 'var(--color-text-muted)', marginLeft: 2 }} />}
               </span>
               <div className="status-button-group">
@@ -160,28 +160,33 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             <span>Aanwezig: {jaCount}/5</span>
             {jaCount >= 4 ? ' (Opstelling compleet)' : ` (Nog ${4 - jaCount} nodig)`}
           </div>
-          <button
-            onClick={() => setShowDetails(!showDetails)}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'var(--color-text-sub)',
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 4
-            }}
-          >
-            {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {showDetails ? 'Minder' : 'Details & Vervoer'}
-          </button>
+
+          {!match.isHome && (
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--color-text-sub)',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+                fontWeight: 600
+              }}
+            >
+              <Car size={13} style={{ color: 'var(--brand-orange)' }} />
+              {showDetails ? 'Minder' : (extra?.driver ? `Rijdt: ${extra.driver}` : 'Wie rijdt er?')}
+              {showDetails ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+          )}
         </div>
       </div>
 
-      {showDetails && (
+      {!match.isHome && showDetails && (
         <div className="extra-details-box">
-          <div className="form-group">
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label><Car size={12} style={{ display: 'inline', marginRight: 4 }} />Wie rijdt er?</label>
             <select
               className="form-select"
@@ -194,31 +199,6 @@ export const MatchCard: React.FC<MatchCardProps> = ({
               ))}
               <option value="Eigen vervoer">Eigen vervoer / Ieder voor zich</option>
             </select>
-          </div>
-
-          <div className="form-group">
-            <label><Shirt size={12} style={{ display: 'inline', marginRight: 4 }} />Wie wast de kleding / regelt het eten?</label>
-            <select
-              className="form-select"
-              value={extra?.wash || ''}
-              onChange={(e) => onUpdateExtra(match.id, { wash: e.target.value })}
-            >
-              <option value="">-- Geen / Onbekend --</option>
-              {PLAYERS.map(p => (
-                <option key={p} value={p}>{p}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label><MessageSquare size={12} style={{ display: 'inline', marginRight: 4 }} />Opmerking / Afspreektijd</label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="Bijv. Verzamelen 18:45 bij sporthal..."
-              value={extra?.notes || ''}
-              onChange={(e) => onUpdateExtra(match.id, { notes: e.target.value })}
-            />
           </div>
         </div>
       )}
