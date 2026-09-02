@@ -28,11 +28,17 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="app-header">
       <div className="header-container">
         <div className="logo-group">
-          <div className="shuttle-badge">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-          </div>
+          <img
+            src="/logonew.svg"
+            alt="BV Hardenberg Logo"
+            style={{
+              height: '46px',
+              width: 'auto',
+              maxHeight: '46px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 2px 10px rgba(0, 0, 0, 0.4))'
+            }}
+          />
           <div>
             <div className="brand-title">BV Hardenberg</div>
             <div className="brand-subtitle">

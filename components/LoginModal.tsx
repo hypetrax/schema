@@ -75,10 +75,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <X size={18} />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '1.25rem' }}>
-          <div className="shuttle-badge" style={{ width: 38, height: 38 }}>
-            <Lock size={18} />
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '1.25rem' }}>
+          <img src="/logonew.svg" alt="BV Hardenberg" style={{ height: '40px', width: 'auto' }} />
           <div>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>Speler Inloggen</h3>
             <p style={{ fontSize: '0.78rem', color: 'var(--color-text-sub)' }}>
