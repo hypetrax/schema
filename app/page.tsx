@@ -210,10 +210,12 @@ export default function HomePage() {
   const hardenbergMatches = matches.filter(m => m.isHardenberg);
   const now = new Date();
 
-  const upcomingHardenbergMatches = hardenbergMatches.filter(m => {
-    const d = parseDate(m.date, m.time);
-    return d >= now;
-  });
+  const upcomingHardenbergMatches = [...hardenbergMatches]
+    .filter(m => {
+      const d = parseDate(m.date, m.time);
+      return d >= now;
+    })
+    .sort((a, b) => parseDate(a.date, a.time).getTime() - parseDate(b.date, b.time).getTime());
 
   const nextMatch = upcomingHardenbergMatches.length > 0 ? upcomingHardenbergMatches[0] : hardenbergMatches[0] || null;
 
