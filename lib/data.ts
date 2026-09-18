@@ -63,7 +63,7 @@ export const SPORTHALLEN: Record<string, Sporthal> = {
 };
 
 export const RAW_MATCHES_DATA = [
-  { date: "14-09-2026", day: "maandag", time: "19:30", home: "BV Borne", away: "BV Hardenberg" },
+  { date: "19-10-2026", day: "maandag", time: "19:30", home: "BV Borne", away: "BV Hardenberg" },
   { date: "17-09-2026", day: "donderdag", time: "20:00", home: "t Pluumke", away: "BV Twenterand" },
   { date: "18-09-2026", day: "vrijdag", time: "19:30", home: "Elo H2", away: "GV Unisson" },
   { date: "18-09-2026", day: "vrijdag", time: "20:00", home: "Wik 80", away: "Elo H1" },
