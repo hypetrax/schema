@@ -28,8 +28,8 @@ export async function GET() {
         let finalDate = tds[0];
         let finalDay = tds[1];
         let finalTime = tds[2];
-        const home = tds[3];
-        const away = tds[5];
+        let home = tds[3].replace('Ogelo', 'Elo');
+        let away = tds[5].replace('Ogelo', 'Elo');
         
         const manualOverride = RAW_MATCHES_DATA.find(m => m.home === home && m.away === away);
         if (manualOverride) {
@@ -69,6 +69,16 @@ export async function GET() {
         });
       }
     }
+    
+    // Sorteer matches op datum (rekening houdend met de overrides)
+    matches.sort((a, b) => {
+      const partsA = a.date.split('-');
+      const partsB = b.date.split('-');
+      if (partsA.length !== 3 || partsB.length !== 3) return 0;
+      const dateA = new Date(parseInt(partsA[2]), parseInt(partsA[1]) - 1, parseInt(partsA[0]), ...a.time.split(':').map(Number));
+      const dateB = new Date(parseInt(partsB[2]), parseInt(partsB[1]) - 1, parseInt(partsB[0]), ...b.time.split(':').map(Number));
+      return dateA.getTime() - dateB.getTime();
+    });
 
     return NextResponse.json({
       success: true,
