@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { SPORTHALLEN, TEAM_NAME, getMatchId } from '@/lib/data';
+import { SPORTHALLEN, TEAM_NAME, getMatchId, RAW_MATCHES_DATA } from '@/lib/data';
 
 export async function GET() {
   try {
@@ -25,12 +25,19 @@ export async function GET() {
       const tds = (tr.match(tdRegex) || []).map(td => td.replace(/<[^>]+>/g, '').trim());
 
       if (tds.length >= 6) {
-        const date = tds[0];
-        const day = tds[1];
-        const time = tds[2];
+        let finalDate = tds[0];
+        let finalDay = tds[1];
+        let finalTime = tds[2];
         const home = tds[3];
         const away = tds[5];
         
+        const manualOverride = RAW_MATCHES_DATA.find(m => m.home === home && m.away === away);
+        if (manualOverride) {
+          finalDate = manualOverride.date;
+          finalDay = manualOverride.day;
+          finalTime = manualOverride.time;
+        }
+
         let homeScore = undefined;
         let awayScore = undefined;
         if (tds.length >= 9) {
@@ -46,10 +53,10 @@ export async function GET() {
         const mapsUrl = homeHall ? homeHall.mapsUrl : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(home)}`;
 
         matches.push({
-          id: getMatchId({ date, home, away }),
-          date,
-          day,
-          time,
+          id: getMatchId({ date: finalDate, home, away }),
+          date: finalDate,
+          day: finalDay,
+          time: finalTime,
           home,
           away,
           homeScore,
