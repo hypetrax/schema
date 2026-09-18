@@ -72,6 +72,18 @@ export default function HomePage() {
 
     // Initial server fetch
     syncWithServer();
+    
+    // Auto-fetch latest schema (cached per 24 hours by Next.js)
+    const fetchSchema = async () => {
+      try {
+        const res = await fetch('/api/schema');
+        const data = await res.json();
+        if (data.success && data.matches && data.matches.length > 0) {
+          setMatches(data.matches);
+        }
+      } catch (e) {}
+    };
+    fetchSchema();
 
     // Auto-sync every 15 seconds so all players see real-time updates
     const interval = setInterval(syncWithServer, 15000);

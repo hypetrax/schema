@@ -105,6 +105,14 @@ export const MatchCard: React.FC<MatchCardProps> = ({
         )}
       </div>
 
+      {match.homeScore !== undefined && match.homeScore !== '' && match.awayScore !== undefined && match.awayScore !== '' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.8rem', fontSize: '1.1rem', fontWeight: 800, color: 'var(--brand-orange)' }}>
+          <span style={{ background: 'rgba(240, 122, 32, 0.1)', padding: '0.2rem 0.6rem', borderRadius: '4px' }}>
+            Uitslag: {match.homeScore} - {match.awayScore}
+          </span>
+        </div>
+      )}
+
       <div className="location-info">
         <MapPin size={13} style={{ flexShrink: 0 }} />
         <a href={match.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="location-link" title="Open in Google Maps">

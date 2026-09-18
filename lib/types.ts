@@ -21,6 +21,8 @@ export interface Match {
   time: string;
   home: string;
   away: string;
+  homeScore?: string;
+  awayScore?: string;
   isHardenberg: boolean;
   isHome: boolean;
   location: string;

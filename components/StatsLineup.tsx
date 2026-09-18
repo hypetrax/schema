@@ -56,7 +56,7 @@ export const StatsLineup: React.FC<StatsLineupProps> = ({ matches, availabilityD
             <Trophy size={16} style={{ color: '#f59e0b' }} />
             Totaal Wedstrijden BV Hardenberg
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 800, color: 'white', marginTop: '0.4rem' }}>
+          <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--brand-navy)', marginTop: '0.4rem' }}>
             {totalHbMatches} <span style={{ fontSize: '0.9rem', color: 'var(--color-text-muted)' }}>(7 thuis, 7 uit)</span>
           </div>
         </div>
@@ -89,14 +89,14 @@ export const StatsLineup: React.FC<StatsLineupProps> = ({ matches, availabilityD
           <tbody>
             {playerStats.map(stat => (
               <tr key={stat.name}>
-                <td style={{ fontWeight: 700, color: 'white' }}>{stat.name}</td>
+                <td style={{ fontWeight: 700, color: 'var(--color-text-main)' }}>{stat.name}</td>
                 <td style={{ color: '#34d399', fontWeight: 700 }}>{stat.ja}x</td>
                 <td style={{ color: '#fbbf24' }}>{stat.twijfel}x</td>
                 <td style={{ color: '#f87171' }}>{stat.nee}x</td>
                 <td style={{ color: 'var(--color-text-muted)' }}>{stat.onbekend}x</td>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                    <div style={{ flex: 1, height: 6, background: 'rgba(255, 255, 255, 0.1)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ flex: 1, height: 6, background: '#e2e8f0', borderRadius: 3, overflow: 'hidden' }}>
                       <div style={{ width: `${stat.percent}%`, height: '100%', background: 'linear-gradient(90deg, #10b981, #0284c7)', borderRadius: 3 }} />
                     </div>
                     <span style={{ fontSize: '0.82rem', fontWeight: 700, width: 36 }}>{stat.percent}%</span>

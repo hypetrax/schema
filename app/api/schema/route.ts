@@ -4,7 +4,7 @@ import { SPORTHALLEN, TEAM_NAME, getMatchId } from '@/lib/data';
 export async function GET() {
   try {
     const res = await fetch('https://motia.nl/elo/schema.html', {
-      cache: 'no-store',
+      next: { revalidate: 86400 },
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) BV Hardenberg Schedule App'
       }
@@ -30,6 +30,13 @@ export async function GET() {
         const time = tds[2];
         const home = tds[3];
         const away = tds[5];
+        
+        let homeScore = undefined;
+        let awayScore = undefined;
+        if (tds.length >= 9) {
+          homeScore = tds[6];
+          awayScore = tds[8];
+        }
 
         const isHardenberg = home === TEAM_NAME || away === TEAM_NAME;
         const isHome = home === TEAM_NAME;
@@ -45,6 +52,8 @@ export async function GET() {
           time,
           home,
           away,
+          homeScore,
+          awayScore,
           isHardenberg,
           isHome,
           location: locationName,

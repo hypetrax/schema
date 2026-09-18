@@ -65,6 +65,7 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({ matches }) => {
               <th>Thuis Team</th>
               <th></th>
               <th>Uit Team</th>
+              <th>Uitslag</th>
               <th>Locatie / Sporthal</th>
             </tr>
           </thead>
@@ -80,6 +81,9 @@ export const ScheduleTable: React.FC<ScheduleTableProps> = ({ matches }) => {
                 <td style={{ color: 'var(--color-text-muted)', textAlign: 'center' }}>-</td>
                 <td style={{ fontWeight: m.away === 'BV Hardenberg' ? 800 : 500, color: m.away === 'BV Hardenberg' ? '#34d399' : 'inherit' }}>
                   {m.away}
+                </td>
+                <td style={{ fontWeight: 700, color: 'var(--brand-orange)' }}>
+                  {m.homeScore && m.awayScore ? `${m.homeScore} - ${m.awayScore}` : '-'}
                 </td>
                 <td>
                   <a href={m.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="location-link" style={{ fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
